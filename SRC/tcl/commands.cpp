@@ -246,6 +246,7 @@ extern void *OPS_NewmarkHSFixedNumIter(void);
 extern void *OPS_NewmarkHSIncrLimit(void);
 extern void *OPS_NewmarkHSIncrReduct(void);
 extern void *OPS_WilsonTheta(void);
+extern void* OPS_CRAlphaExplicit(void); //zxh
 
 // for response spectrum analysis
 extern int OPS_DomainModalProperties(void);
@@ -5204,6 +5205,13 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
     if (theTransientAnalysis != 0)
       theTransientAnalysis->setIntegrator(*theTransientIntegrator);
   }
+
+  else if (strcmp(argv[1], "CRAlphaExplicit") == 0) {
+  theTransientIntegrator = (TransientIntegrator*)OPS_CRAlphaExplicit();
+
+  if (theTransientAnalysis != 0)
+      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
+  }  //zxh
   
   else if (strcmp(argv[1],"KRAlphaExplicit_TP") == 0) {
     theTransientIntegrator = (TransientIntegrator *)OPS_KRAlphaExplicit_TP();

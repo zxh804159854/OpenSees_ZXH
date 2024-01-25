@@ -207,6 +207,7 @@
     <ClCompile Include="..\..\..\SRC\analysis\analysis\ResponseSpectrumAnalysis.cpp" />
     <ClCompile Include="..\..\..\SRC\analysis\integrator\AlphaOSGeneralized_TP.cpp" />
     <ClCompile Include="..\..\..\SRC\analysis\integrator\AlphaOS_TP.cpp" />
+    <ClCompile Include="..\..\..\SRC\analysis\integrator\CRAlphaExplicit.cpp" />
     <ClCompile Include="..\..\..\SRC\analysis\integrator\EQPath.cpp" />
     <ClCompile Include="..\..\..\SRC\analysis\integrator\ExplicitDifference.cpp" />
     <ClCompile Include="..\..\..\SRC\analysis\integrator\GimmeMCK.cpp" />
@@ -324,6 +325,7 @@
     <ClInclude Include="..\..\..\SRC\analysis\analysis\ResponseSpectrumAnalysis.h" />
     <ClInclude Include="..\..\..\SRC\analysis\integrator\AlphaOSGeneralized_TP.h" />
     <ClInclude Include="..\..\..\SRC\analysis\integrator\AlphaOS_TP.h" />
+    <ClInclude Include="..\..\..\SRC\analysis\integrator\CRAlphaExplicit.h" />
     <ClInclude Include="..\..\..\SRC\analysis\integrator\EQPath.h" />
     <ClInclude Include="..\..\..\SRC\analysis\integrator\ExplicitDifference.h" />
     <ClInclude Include="..\..\..\SRC\analysis\integrator\GimmeMCK.h" />
