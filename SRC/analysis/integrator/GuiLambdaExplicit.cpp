@@ -18,7 +18,7 @@
 **                                                                    **
 ** ****************************************************************** */
 
-#include <CRExplicit.h>
+#include <GuiLambdaExplicit.h>
 #include <FE_Element.h>
 #include <LinearSOE.h>
 #include "fullGEN/FullGenLinSOE.h"
@@ -34,35 +34,42 @@
 #define OPS_Export
 
 
-void *    OPS_CRExplicit(void)
+void *    OPS_GuiLambdaExplicit(void)
 {
     // pointer to an integrator that will be returned
     TransientIntegrator *theIntegrator = 0;
     
     int argc = OPS_GetNumRemainingInputArgs();
-    if (argc != 0 && argc != 1) {
-        opserr << "WARNING - incorrect number of args want CRExplicit <-updateElemDisp>\n";
+    if (argc != 1 && argc != 2) {
+        opserr << "WARNING - incorrect number of args want GuiLambdaExplicit $lambda <-updateElemDisp>\n";
         return 0;
     }
     bool updElemDisp = false;
+    double dData;
+    int numData = 1;
+    if (OPS_GetDouble(&numData, &dData) != 0) {
+        opserr << "WARNING - invalid args want GuiLambdaExplicit $lambda <-updateElemDisp>\n";
+        return 0;
+    }
 
-    if (argc == 1) {
+    if (argc == 2) {
         const char* argvLoc = OPS_GetString();
         if (strcmp(argvLoc, "-updateElemDisp") == 0)
             updElemDisp = true;
     }
 
-    theIntegrator = new CRExplicit(updElemDisp);
+    theIntegrator = new GuiLambdaExplicit(dData, updElemDisp);
     
     if (theIntegrator == 0)
-        opserr << "WARNING - out of memory creating CRExplicit integrator\n";
+        opserr << "WARNING - out of memory creating GuiLambdaExplicit integrator\n";
     
     return theIntegrator;
 }
 
 
-CRExplicit::CRExplicit( )
-    : TransientIntegrator(INTEGRATOR_TAGS_CRExplicit),
+GuiLambdaExplicit::GuiLambdaExplicit( )
+    : TransientIntegrator(INTEGRATOR_TAGS_GuiLambdaExplicit),
+    lambda(0.0),
     deltaT(0.0), 
     alpha1(0), Mhat(0),
     updateCount(0), initAlphaMatrices(1),
@@ -75,8 +82,10 @@ CRExplicit::CRExplicit( )
 }
 
 
-CRExplicit::CRExplicit(bool updelemdisp)
-    : TransientIntegrator(INTEGRATOR_TAGS_CRExplicit),
+GuiLambdaExplicit::GuiLambdaExplicit(double _lambda,
+    bool updelemdisp)
+    : TransientIntegrator(INTEGRATOR_TAGS_GuiLambdaExplicit),
+    lambda(_lambda),
     deltaT(0.0),
     alpha1(0), Mhat(0),
     updateCount(0), initAlphaMatrices(1),
@@ -89,7 +98,7 @@ CRExplicit::CRExplicit(bool updelemdisp)
 }
 
 
-CRExplicit::~CRExplicit()
+GuiLambdaExplicit::~GuiLambdaExplicit()
 {
     // clean up the memory created
     if (alpha1 != 0)
@@ -113,7 +122,7 @@ CRExplicit::~CRExplicit()
 }
 
 
-int CRExplicit::newStep(double _deltaT)
+int GuiLambdaExplicit::newStep(double _deltaT)
 {
     updateCount = 0;
     
@@ -121,7 +130,7 @@ int CRExplicit::newStep(double _deltaT)
     // get a pointer to the AnalysisModel
     AnalysisModel *theModel = this->getAnalysisModel();
     if (theModel == 0)  {
-        opserr << "WARNING CRExplicit::newStep() - no AnalysisModel set\n";
+        opserr << "WARNING GuiLambdaExplicit::newStep() - no AnalysisModel set\n";
         return -2;
     }
     
@@ -130,7 +139,7 @@ int CRExplicit::newStep(double _deltaT)
         // update time step increment
         deltaT = _deltaT;
         if (deltaT <= 0.0)  {
-            opserr << "WARNING CRExplicit::newStep() - error in variable\n";
+            opserr << "WARNING GuiLambdaExplicit::newStep() - error in variable\n";
             opserr << "dT = " << deltaT << endln;
             return -3;
         }
@@ -144,7 +153,7 @@ int CRExplicit::newStep(double _deltaT)
         FullGenLinSolver *theFullLinSolver = new FullGenLinLapackSolver();
         LinearSOE *theFullLinSOE = new FullGenLinSOE(size, *theFullLinSolver);
         if (theFullLinSOE == 0)  {
-            opserr << "WARNING CRExplicit::newStep() - failed to create FullLinearSOE\n";
+            opserr << "WARNING GuiLambdaExplicit::newStep() - failed to create FullLinearSOE\n";
             return -4;
         }
         theFullLinSOE->setLinks(*theModel);
@@ -155,32 +164,32 @@ int CRExplicit::newStep(double _deltaT)
         // get a pointer to the A matrix of the FullLinearSOE
         const Matrix *tmp = theFullLinSOE->getA();
         if (tmp == 0)  {
-            opserr << "WARNING CRExplicit::newStep() - ";
+            opserr << "WARNING GuiLambdaExplicit::newStep() - ";
             opserr << "failed to get A matrix of FullGeneral LinearSOE\n";
             return -5;
         }
         
         // calculate the integration parameter matrices
         // c1:K  c2:C  c3:M
-        c1 = deltaT*deltaT;
-        c2 = 2.0*deltaT;
-        c3 = 4.0;
+        c1 = 2.0*deltaT*deltaT;
+        c2 = lambda*deltaT;
+        c3 = 2.0* lambda;
         this->TransientIntegrator::formTangent(INITIAL_TANGENT);
         Matrix A(*tmp);
         
         c1 = 0.0;
         c2 = 0.0;
-        c3 = 4.0;
+        c3 = 2.0 * lambda;
         this->TransientIntegrator::formTangent(INITIAL_TANGENT);
         Matrix B1(*tmp);
         
-        // solve [4M + 2*deltaT*C + deltaT^2*K]*[alpha1] = [4*M]
+        // solve [2*lambda*M + lambda*deltaT*C + 2*deltaT^2*K]*[alpha1] = [2*lambda*M]
         // for alpha1
         A.Solve(B1, *alpha1);
         
         
         // calculate the effective mass matrix Mhat
-        Mhat->addMatrix(0.0, B1, 0.25);
+        Mhat->addMatrix(0.0, B1, 1.0/2.0/lambda);
         
         // switch the SOE back to the user specified one
         this->IncrementalIntegrator::setLinks(*theModel, *theLinSOE, theTest);
@@ -189,7 +198,7 @@ int CRExplicit::newStep(double _deltaT)
     }
     
     if (U == 0)  {
-        opserr << "WARNING CRExplicit::newStep() - domainChange() failed or hasn't been called\n";
+        opserr << "WARNING GuiLambdaExplicit::newStep() - domainChange() failed or hasn't been called\n";
         return -6;
     }
     
@@ -218,7 +227,7 @@ int CRExplicit::newStep(double _deltaT)
     double time = theModel->getCurrentDomainTime();
     time += deltaT;
     if (theModel->updateDomain(time, deltaT) < 0)  {
-        opserr << "WARNING CRExplicit::newStep() - failed to update the domain\n";
+        opserr << "WARNING GuiLambdaExplicit::newStep() - failed to update the domain\n";
         return -7;
     }
     
@@ -226,7 +235,7 @@ int CRExplicit::newStep(double _deltaT)
 }
 
 
-int CRExplicit::revertToLastStep()
+int GuiLambdaExplicit::revertToLastStep()
 {
     // set response at t+deltaT to be that at t .. for next step
     if (U != 0)  {
@@ -239,14 +248,14 @@ int CRExplicit::revertToLastStep()
 }
 
 
-int CRExplicit::formTangent(int statFlag)
+int GuiLambdaExplicit::formTangent(int statFlag)
 {
     statusFlag = statFlag;
     
     LinearSOE *theLinSOE = this->getLinearSOE();
     AnalysisModel *theModel = this->getAnalysisModel();
     if (theLinSOE == 0 || theModel == 0)  {
-        opserr << "WARNING CRExplicit::formTangent() - ";
+        opserr << "WARNING GuiLambdaExplicit::formTangent() - ";
         opserr << "no LinearSOE or AnalysisModel has been set\n";
         return -1;
     }
@@ -259,7 +268,7 @@ int CRExplicit::formTangent(int statFlag)
         id(i) = id(i-1) + 1;
     }
     if (theLinSOE->addA(*Mhat, id) < 0)  {
-        opserr << "WARNING CRExplicit::formTangent() - ";
+        opserr << "WARNING GuiLambdaExplicit::formTangent() - ";
         opserr << "failed to add Mhat to A\n";
         return -2;
     }
@@ -268,7 +277,7 @@ int CRExplicit::formTangent(int statFlag)
 }
 
 
-int CRExplicit::formEleTangent(FE_Element *theEle)
+int GuiLambdaExplicit::formEleTangent(FE_Element *theEle)
 {
     theEle->zeroTangent();
     
@@ -284,7 +293,7 @@ int CRExplicit::formEleTangent(FE_Element *theEle)
 }
 
 
-int CRExplicit::formNodTangent(DOF_Group *theDof)
+int GuiLambdaExplicit::formNodTangent(DOF_Group *theDof)
 {
     theDof->zeroTangent();
     
@@ -295,7 +304,7 @@ int CRExplicit::formNodTangent(DOF_Group *theDof)
 }
 
 
-int CRExplicit::domainChanged()
+int GuiLambdaExplicit::domainChanged()
 {
     AnalysisModel *theModel = this->getAnalysisModel();
     LinearSOE *theLinSOE = this->getLinearSOE();
@@ -347,7 +356,7 @@ int CRExplicit::domainChanged()
             Udotdot == 0 || Udotdot->Size() != size ||
             Utdothat == 0 || Utdothat->Size() != size)  {
             
-            opserr << "WARNING CRExplicit::domainChanged() - ";
+            opserr << "WARNING GuiLambdaExplicit::domainChanged() - ";
             opserr << "ran out of memory\n";
             
             // delete the old
@@ -420,30 +429,30 @@ int CRExplicit::domainChanged()
 }
 
 
-int CRExplicit::update(const Vector &aiPlusOne)
+int GuiLambdaExplicit::update(const Vector &aiPlusOne)
 {
     updateCount++;
     if (updateCount > 1)  {
-        opserr << "WARNING CRExplicit::update() - called more than once -";
-        opserr << " CRExplicit integration scheme requires a LINEAR solution algorithm\n";
+        opserr << "WARNING GuiLambdaExplicit::update() - called more than once -";
+        opserr << " GuiLambdaExplicit integration scheme requires a LINEAR solution algorithm\n";
         return -1;
     }
     
     AnalysisModel *theModel = this->getAnalysisModel();
     if (theModel == 0)  {
-        opserr << "WARNING CRExplicit::update() - no AnalysisModel set\n";
+        opserr << "WARNING GuiLambdaExplicit::update() - no AnalysisModel set\n";
         return -2;
     }
     
     // check domainChanged() has been called, i.e. Ut will not be zero
     if (Ut == 0)  {
-        opserr << "WARNING CRExplicit::update() - domainChange() failed or not called\n";
+        opserr << "WARNING GuiLambdaExplicit::update() - domainChange() failed or not called\n";
         return -3;
     }
     
     // check aiPlusOne is of correct size
     if (aiPlusOne.Size() != U->Size())  {
-        opserr << "WARNING CRExplicit::update() - Vectors of incompatible size ";
+        opserr << "WARNING GuiLambdaExplicit::update() - Vectors of incompatible size ";
         opserr << " expecting " << U->Size() << " obtained " << aiPlusOne.Size() << endln;
         return -4;
     }
@@ -459,7 +468,7 @@ int CRExplicit::update(const Vector &aiPlusOne)
     theModel->setVel(*Udot);
     theModel->setAccel(*Udotdot);
     if (theModel->updateDomain() < 0)  {
-        opserr << "CRExplicit::update() - failed to update the domain\n";
+        opserr << "GuiLambdaExplicit::update() - failed to update the domain\n";
         return -5;
     }
     // do not update displacements in elements only at nodes
@@ -472,11 +481,11 @@ int CRExplicit::update(const Vector &aiPlusOne)
 }
 
 
-int CRExplicit::commit(void)
+int GuiLambdaExplicit::commit(void)
 {
     AnalysisModel *theModel = this->getAnalysisModel();
     if (theModel == 0)  {
-        opserr << "WARNING CRExplicit::commit() - no AnalysisModel set\n";
+        opserr << "WARNING GuiLambdaExplicit::commit() - no AnalysisModel set\n";
         return -1;
     }
     
@@ -493,12 +502,12 @@ int CRExplicit::commit(void)
 }
 
 const Vector &
-CRExplicit::getVel()
+GuiLambdaExplicit::getVel()
 {
   return *Udot;
 }
 
-int CRExplicit::sendSelf(int cTag, Channel &theChannel)
+int GuiLambdaExplicit::sendSelf(int cTag, Channel &theChannel)
 {
 
     Vector data(1);
@@ -517,7 +526,7 @@ int CRExplicit::sendSelf(int cTag, Channel &theChannel)
 }
 
 
-int CRExplicit::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
+int GuiLambdaExplicit::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
 {
     Vector data(1);
     if (theChannel.recvVector(this->getDbTag(), cTag, data) < 0) {
@@ -534,18 +543,18 @@ int CRExplicit::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBro
 }
 
 
-void CRExplicit::Print(OPS_Stream &s, int flag)
+void GuiLambdaExplicit::Print(OPS_Stream &s, int flag)
 {
     AnalysisModel *theModel = this->getAnalysisModel();
     if (theModel != 0)  {
         double currentTime = theModel->getCurrentDomainTime();
-        s << "CRExplicit - currentTime: " << currentTime << endln ;
-        s << "  alpha1=alpha2: " << alpha1 << endln;
+        s << "GuiLambdaExplicit - currentTime: " << currentTime << endln ;
+        s << "  lambda: " << lambda << endln;
         s << "  c1: " << c1 << "  c2: " << c2 << "  c3: " << c3 << endln;
         if (updElemDisp)
             s << "  updateElemDisp: yes\n";
         else
             s << "  updateElemDisp: no\n";
     } else
-        s << "CRExplicit - no associated AnalysisModel\n";
+        s << "GuiLambdaExplicit - no associated AnalysisModel\n";
 }

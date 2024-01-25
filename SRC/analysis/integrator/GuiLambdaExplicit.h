@@ -22,22 +22,22 @@
 // $Date$
 // $URL$
 
-#ifndef CRExplicit_h
-#define CRExplicit_h
+#ifndef GuiLambdaExplicit_h
+#define GuiLambdaExplicit_h
 
-// Developed: Chinmoy Kolay (chk311@lehigh.edu)
-// Implemented: Andreas Schellenberg (andreas.schellenberg@gmail.com)
-// Created: 08/14
+// Developed: Gui Y, Wang J T, Jin F, et al. (jinfeng@tsinghua.edu.cn)
+// Implemented: Xiaohang Zhang (xiaohangzhang@tju.edu.cn) 
+// Implemented: Ning Li (neallee@tju.edu.cn)
+// Created: 01/24
 // Revision: A
 //
-// Description: This file contains the class definition for CRExplicit.
-// CRExplicit is an algorithmic class for performing a transient analysis
-// using the explicit Kolay-Ricles integration scheme based on the midpoint rule.
+// Description: This file contains the class definition for GuiLambdaExplicit.
+// GuiLambdaExplicit is an algorithmic class for performing a transient analysis
 //
-// Reference: Chen C, Ricles J M. 
-// Development of Direct Integration Algorithms for Structural Dynamics Using Discrete Control Theory.
-// Journal of Engineering Mechanics, 2008, 134(8): 676-683.
-// doi:10.1061/(ASCE)0733-9399(2008)134:8(676)
+// Reference: Gui Y, Wang J T, Jin F, et al.
+// Development of a family of explicit algorithms for structural dynamics with unconditional stability.
+// Nonlinear Dynamics, 2014, 77(4) : 1157 - 1170.
+
 
 
 
@@ -48,15 +48,16 @@ class FE_Element;
 class Vector;
 class Matrix;
 
-class CRExplicit : public TransientIntegrator
+class GuiLambdaExplicit : public TransientIntegrator
 {
 public:
     // constructors
-    CRExplicit();
-    CRExplicit(bool updElemDisp = false);
+    GuiLambdaExplicit();
+    GuiLambdaExplicit(double lambda ,
+        bool updElemDisp = false);
     
     // destructor
-    ~CRExplicit();
+    ~GuiLambdaExplicit();
     
     // method to set up the system of equations
     int formTangent(int statFlag);
@@ -83,6 +84,7 @@ public:
 protected:
     
 private:
+    double lambda;
     bool updElemDisp;  // a flag indicating if element displacements are updated during commit
     double deltaT;
     
