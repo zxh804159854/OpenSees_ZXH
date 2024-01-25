@@ -22,17 +22,18 @@
 // $Date$
 // $URL$
 
-#ifndef CRAlphaExplicit_h
-#define CRAlphaExplicit_h
+#ifndef CRExplicit_h
+#define CRExplicit_h
 
-// Developed: Chinmoy Kolay (chk311@lehigh.edu)
-// Implemented: Andreas Schellenberg (andreas.schellenberg@gmail.com)
-// Created: 08/14
+// Developed: Cheng Chen (chc4@lehigh.edu)
+// Implemented: Xiaohang Zhang (xiaohangzhang@tju.edu.cn) 
+// Implemented: Ning Li (neallee@tju.edu.cn)
+// Created: 01/24
 // Revision: A
 //
-// Description: This file contains the class definition for CRAlphaExplicit.
-// CRAlphaExplicit is an algorithmic class for performing a transient analysis
-// using the explicit Kolay-Ricles integration scheme based on the midpoint rule.
+// Description: This file contains the class definition for CRExplicit.
+// CRExplicit is an algorithmic class for performing a transient analysis
+// using the explicit Chen-Ricles integration scheme based on the mapping rule of poles.
 //
 // Reference: Chen C, Ricles J M. 
 // Development of Direct Integration Algorithms for Structural Dynamics Using Discrete Control Theory.
@@ -48,15 +49,15 @@ class FE_Element;
 class Vector;
 class Matrix;
 
-class CRAlphaExplicit : public TransientIntegrator
+class CRExplicit : public TransientIntegrator
 {
 public:
     // constructors
-    CRAlphaExplicit();
-    CRAlphaExplicit(bool updElemDisp = false);
+    CRExplicit();
+    CRExplicit(bool updElemDisp = false);
     
     // destructor
-    ~CRAlphaExplicit();
+    ~CRExplicit();
     
     // method to set up the system of equations
     int formTangent(int statFlag);

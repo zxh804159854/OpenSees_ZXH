@@ -1059,7 +1059,7 @@
 #define INTEGRATOR_TAGS_StagedLoadControl               58
 #define INTEGRATOR_TAGS_StagedNewmark                   59
 #define INTEGRATOR_TAGS_HarmonicSteadyState             60
-#define INTEGRATOR_TAGS_CRAlphaExplicit                 61  //zxh
+#define INTEGRATOR_TAGS_CRExplicit                      61   //zxh
 
 #define LinSOE_TAGS_FullGenLinSOE		1
 #define LinSOE_TAGS_BandGenLinSOE		2

@@ -18,7 +18,7 @@
 **                                                                    **
 ** ****************************************************************** */
 
-#include <CRAlphaExplicit.h>
+#include <CRExplicit.h>
 #include <FE_Element.h>
 #include <LinearSOE.h>
 #include "fullGEN/FullGenLinSOE.h"
@@ -34,14 +34,14 @@
 #define OPS_Export
 
 
-void *    OPS_CRAlphaExplicit(void)
+void *    OPS_CRExplicit(void)
 {
     // pointer to an integrator that will be returned
     TransientIntegrator *theIntegrator = 0;
     
     int argc = OPS_GetNumRemainingInputArgs();
     if (argc != 0 && argc != 1) {
-        opserr << "WARNING - incorrect number of args want CRAlphaExplicit <-updateElemDisp>\n";
+        opserr << "WARNING - incorrect number of args want CRExplicit <-updateElemDisp>\n";
         return 0;
     }
     bool updElemDisp = false;
@@ -52,17 +52,17 @@ void *    OPS_CRAlphaExplicit(void)
             updElemDisp = true;
     }
 
-    theIntegrator = new CRAlphaExplicit(updElemDisp);
+    theIntegrator = new CRExplicit(updElemDisp);
     
     if (theIntegrator == 0)
-        opserr << "WARNING - out of memory creating CRAlphaExplicit integrator\n";
+        opserr << "WARNING - out of memory creating CRExplicit integrator\n";
     
     return theIntegrator;
 }
 
 
-CRAlphaExplicit::CRAlphaExplicit( )
-    : TransientIntegrator(INTEGRATOR_TAGS_CRAlphaExplicit),
+CRExplicit::CRExplicit( )
+    : TransientIntegrator(INTEGRATOR_TAGS_CRExplicit),
     deltaT(0.0), 
     alpha1(0), Mhat(0),
     updateCount(0), initAlphaMatrices(1),
@@ -75,8 +75,8 @@ CRAlphaExplicit::CRAlphaExplicit( )
 }
 
 
-CRAlphaExplicit::CRAlphaExplicit(bool updelemdisp)
-    : TransientIntegrator(INTEGRATOR_TAGS_CRAlphaExplicit),
+CRExplicit::CRExplicit(bool updelemdisp)
+    : TransientIntegrator(INTEGRATOR_TAGS_CRExplicit),
     deltaT(0.0),
     alpha1(0), Mhat(0),
     updateCount(0), initAlphaMatrices(1),
@@ -89,7 +89,7 @@ CRAlphaExplicit::CRAlphaExplicit(bool updelemdisp)
 }
 
 
-CRAlphaExplicit::~CRAlphaExplicit()
+CRExplicit::~CRExplicit()
 {
     // clean up the memory created
     if (alpha1 != 0)
@@ -113,7 +113,7 @@ CRAlphaExplicit::~CRAlphaExplicit()
 }
 
 
-int CRAlphaExplicit::newStep(double _deltaT)
+int CRExplicit::newStep(double _deltaT)
 {
     updateCount = 0;
     
@@ -121,7 +121,7 @@ int CRAlphaExplicit::newStep(double _deltaT)
     // get a pointer to the AnalysisModel
     AnalysisModel *theModel = this->getAnalysisModel();
     if (theModel == 0)  {
-        opserr << "WARNING CRAlphaExplicit::newStep() - no AnalysisModel set\n";
+        opserr << "WARNING CRExplicit::newStep() - no AnalysisModel set\n";
         return -2;
     }
     
@@ -130,7 +130,7 @@ int CRAlphaExplicit::newStep(double _deltaT)
         // update time step increment
         deltaT = _deltaT;
         if (deltaT <= 0.0)  {
-            opserr << "WARNING CRAlphaExplicit::newStep() - error in variable\n";
+            opserr << "WARNING CRExplicit::newStep() - error in variable\n";
             opserr << "dT = " << deltaT << endln;
             return -3;
         }
@@ -144,7 +144,7 @@ int CRAlphaExplicit::newStep(double _deltaT)
         FullGenLinSolver *theFullLinSolver = new FullGenLinLapackSolver();
         LinearSOE *theFullLinSOE = new FullGenLinSOE(size, *theFullLinSolver);
         if (theFullLinSOE == 0)  {
-            opserr << "WARNING CRAlphaExplicit::newStep() - failed to create FullLinearSOE\n";
+            opserr << "WARNING CRExplicit::newStep() - failed to create FullLinearSOE\n";
             return -4;
         }
         theFullLinSOE->setLinks(*theModel);
@@ -155,7 +155,7 @@ int CRAlphaExplicit::newStep(double _deltaT)
         // get a pointer to the A matrix of the FullLinearSOE
         const Matrix *tmp = theFullLinSOE->getA();
         if (tmp == 0)  {
-            opserr << "WARNING CRAlphaExplicit::newStep() - ";
+            opserr << "WARNING CRExplicit::newStep() - ";
             opserr << "failed to get A matrix of FullGeneral LinearSOE\n";
             return -5;
         }
@@ -189,7 +189,7 @@ int CRAlphaExplicit::newStep(double _deltaT)
     }
     
     if (U == 0)  {
-        opserr << "WARNING CRAlphaExplicit::newStep() - domainChange() failed or hasn't been called\n";
+        opserr << "WARNING CRExplicit::newStep() - domainChange() failed or hasn't been called\n";
         return -6;
     }
     
@@ -218,7 +218,7 @@ int CRAlphaExplicit::newStep(double _deltaT)
     double time = theModel->getCurrentDomainTime();
     time += deltaT;
     if (theModel->updateDomain(time, deltaT) < 0)  {
-        opserr << "WARNING CRAlphaExplicit::newStep() - failed to update the domain\n";
+        opserr << "WARNING CRExplicit::newStep() - failed to update the domain\n";
         return -7;
     }
     
@@ -226,7 +226,7 @@ int CRAlphaExplicit::newStep(double _deltaT)
 }
 
 
-int CRAlphaExplicit::revertToLastStep()
+int CRExplicit::revertToLastStep()
 {
     // set response at t+deltaT to be that at t .. for next step
     if (U != 0)  {
@@ -239,14 +239,14 @@ int CRAlphaExplicit::revertToLastStep()
 }
 
 
-int CRAlphaExplicit::formTangent(int statFlag)
+int CRExplicit::formTangent(int statFlag)
 {
     statusFlag = statFlag;
     
     LinearSOE *theLinSOE = this->getLinearSOE();
     AnalysisModel *theModel = this->getAnalysisModel();
     if (theLinSOE == 0 || theModel == 0)  {
-        opserr << "WARNING CRAlphaExplicit::formTangent() - ";
+        opserr << "WARNING CRExplicit::formTangent() - ";
         opserr << "no LinearSOE or AnalysisModel has been set\n";
         return -1;
     }
@@ -259,7 +259,7 @@ int CRAlphaExplicit::formTangent(int statFlag)
         id(i) = id(i-1) + 1;
     }
     if (theLinSOE->addA(*Mhat, id) < 0)  {
-        opserr << "WARNING CRAlphaExplicit::formTangent() - ";
+        opserr << "WARNING CRExplicit::formTangent() - ";
         opserr << "failed to add Mhat to A\n";
         return -2;
     }
@@ -268,7 +268,7 @@ int CRAlphaExplicit::formTangent(int statFlag)
 }
 
 
-int CRAlphaExplicit::formEleTangent(FE_Element *theEle)
+int CRExplicit::formEleTangent(FE_Element *theEle)
 {
     theEle->zeroTangent();
     
@@ -284,7 +284,7 @@ int CRAlphaExplicit::formEleTangent(FE_Element *theEle)
 }
 
 
-int CRAlphaExplicit::formNodTangent(DOF_Group *theDof)
+int CRExplicit::formNodTangent(DOF_Group *theDof)
 {
     theDof->zeroTangent();
     
@@ -295,7 +295,7 @@ int CRAlphaExplicit::formNodTangent(DOF_Group *theDof)
 }
 
 
-int CRAlphaExplicit::domainChanged()
+int CRExplicit::domainChanged()
 {
     AnalysisModel *theModel = this->getAnalysisModel();
     LinearSOE *theLinSOE = this->getLinearSOE();
@@ -347,7 +347,7 @@ int CRAlphaExplicit::domainChanged()
             Udotdot == 0 || Udotdot->Size() != size ||
             Utdothat == 0 || Utdothat->Size() != size)  {
             
-            opserr << "WARNING CRAlphaExplicit::domainChanged() - ";
+            opserr << "WARNING CRExplicit::domainChanged() - ";
             opserr << "ran out of memory\n";
             
             // delete the old
@@ -420,30 +420,30 @@ int CRAlphaExplicit::domainChanged()
 }
 
 
-int CRAlphaExplicit::update(const Vector &aiPlusOne)
+int CRExplicit::update(const Vector &aiPlusOne)
 {
     updateCount++;
     if (updateCount > 1)  {
-        opserr << "WARNING CRAlphaExplicit::update() - called more than once -";
-        opserr << " CRAlphaExplicit integration scheme requires a LINEAR solution algorithm\n";
+        opserr << "WARNING CRExplicit::update() - called more than once -";
+        opserr << " CRExplicit integration scheme requires a LINEAR solution algorithm\n";
         return -1;
     }
     
     AnalysisModel *theModel = this->getAnalysisModel();
     if (theModel == 0)  {
-        opserr << "WARNING CRAlphaExplicit::update() - no AnalysisModel set\n";
+        opserr << "WARNING CRExplicit::update() - no AnalysisModel set\n";
         return -2;
     }
     
     // check domainChanged() has been called, i.e. Ut will not be zero
     if (Ut == 0)  {
-        opserr << "WARNING CRAlphaExplicit::update() - domainChange() failed or not called\n";
+        opserr << "WARNING CRExplicit::update() - domainChange() failed or not called\n";
         return -3;
     }
     
     // check aiPlusOne is of correct size
     if (aiPlusOne.Size() != U->Size())  {
-        opserr << "WARNING CRAlphaExplicit::update() - Vectors of incompatible size ";
+        opserr << "WARNING CRExplicit::update() - Vectors of incompatible size ";
         opserr << " expecting " << U->Size() << " obtained " << aiPlusOne.Size() << endln;
         return -4;
     }
@@ -459,7 +459,7 @@ int CRAlphaExplicit::update(const Vector &aiPlusOne)
     theModel->setVel(*Udot);
     theModel->setAccel(*Udotdot);
     if (theModel->updateDomain() < 0)  {
-        opserr << "CRAlphaExplicit::update() - failed to update the domain\n";
+        opserr << "CRExplicit::update() - failed to update the domain\n";
         return -5;
     }
     // do not update displacements in elements only at nodes
@@ -472,11 +472,11 @@ int CRAlphaExplicit::update(const Vector &aiPlusOne)
 }
 
 
-int CRAlphaExplicit::commit(void)
+int CRExplicit::commit(void)
 {
     AnalysisModel *theModel = this->getAnalysisModel();
     if (theModel == 0)  {
-        opserr << "WARNING CRAlphaExplicit::commit() - no AnalysisModel set\n";
+        opserr << "WARNING CRExplicit::commit() - no AnalysisModel set\n";
         return -1;
     }
     
@@ -493,12 +493,12 @@ int CRAlphaExplicit::commit(void)
 }
 
 const Vector &
-CRAlphaExplicit::getVel()
+CRExplicit::getVel()
 {
   return *Udot;
 }
 
-int CRAlphaExplicit::sendSelf(int cTag, Channel &theChannel)
+int CRExplicit::sendSelf(int cTag, Channel &theChannel)
 {
 
     Vector data(1);
@@ -517,7 +517,7 @@ int CRAlphaExplicit::sendSelf(int cTag, Channel &theChannel)
 }
 
 
-int CRAlphaExplicit::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
+int CRExplicit::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
 {
     Vector data(1);
     if (theChannel.recvVector(this->getDbTag(), cTag, data) < 0) {
@@ -534,12 +534,12 @@ int CRAlphaExplicit::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &t
 }
 
 
-void CRAlphaExplicit::Print(OPS_Stream &s, int flag)
+void CRExplicit::Print(OPS_Stream &s, int flag)
 {
     AnalysisModel *theModel = this->getAnalysisModel();
     if (theModel != 0)  {
         double currentTime = theModel->getCurrentDomainTime();
-        s << "CRAlphaExplicit - currentTime: " << currentTime << endln ;
+        s << "CRExplicit - currentTime: " << currentTime << endln ;
         s << "  alpha1=alpha2: " << alpha1 << endln;
         s << "  c1: " << c1 << "  c2: " << c2 << "  c3: " << c3 << endln;
         if (updElemDisp)
@@ -547,5 +547,5 @@ void CRAlphaExplicit::Print(OPS_Stream &s, int flag)
         else
             s << "  updateElemDisp: no\n";
     } else
-        s << "CRAlphaExplicit - no associated AnalysisModel\n";
+        s << "CRExplicit - no associated AnalysisModel\n";
 }
