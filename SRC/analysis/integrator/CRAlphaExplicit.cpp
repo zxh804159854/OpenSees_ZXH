@@ -214,9 +214,9 @@ int CRAlphaExplicit::newStep(double _deltaT)
     //theModel->setDisp(*U);
     //theModel->setVel(*Udot);
     
-    // increment the time to t+alpha*deltaT and apply the load
+    // increment the time to t+deltaT and apply the load
     double time = theModel->getCurrentDomainTime();
-    time +=0.5*deltaT;
+    time += deltaT;
     if (theModel->updateDomain(time, deltaT) < 0)  {
         opserr << "WARNING CRAlphaExplicit::newStep() - failed to update the domain\n";
         return -7;
@@ -482,7 +482,7 @@ int CRAlphaExplicit::commit(void)
     
     // have set the time to be t+deltaT
     double time = theModel->getCurrentDomainTime();
-    time += 0.5*deltaT;
+    //time += 0.0*deltaT;
     theModel->setCurrentDomainTime(time);
     
     // update the displacements in the elements
