@@ -540,7 +540,7 @@ void CRExplicit::Print(OPS_Stream &s, int flag)
     if (theModel != 0)  {
         double currentTime = theModel->getCurrentDomainTime();
         s << "CRExplicit - currentTime: " << currentTime << endln ;
-        s << "  alpha1=alpha2: " << alpha1 << endln;
+        //s << "  alpha1=alpha2: " << alpha1 << endln;
         s << "  c1: " << c1 << "  c2: " << c2 << "  c3: " << c3 << endln;
         if (updElemDisp)
             s << "  updateElemDisp: yes\n";
