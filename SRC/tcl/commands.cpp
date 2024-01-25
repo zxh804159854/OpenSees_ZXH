@@ -246,7 +246,8 @@ extern void *OPS_NewmarkHSFixedNumIter(void);
 extern void *OPS_NewmarkHSIncrLimit(void);
 extern void *OPS_NewmarkHSIncrReduct(void);
 extern void *OPS_WilsonTheta(void);
-extern void* OPS_CRExplicit(void); //zxh
+extern void* OPS_CRExplicit(void);        //add by Xiaohang Zhang (xiaohangzhang@tju.edu.cn)
+extern void* OPS_GuiLambdaExplicit(void); //add by Xiaohang Zhang (xiaohangzhang@tju.edu.cn)
 
 // for response spectrum analysis
 extern int OPS_DomainModalProperties(void);
@@ -5211,7 +5212,14 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (theTransientAnalysis != 0)
       theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }  //zxh
+  }  //add by Xiaohang Zhang (xiaohangzhang@tju.edu.cn)
+
+  else if (strcmp(argv[1], "GuiLambdaExplicit") == 0) {
+  theTransientIntegrator = (TransientIntegrator*)OPS_GuiLambdaExplicit();
+
+  if (theTransientAnalysis != 0)
+      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
+  }  //add by Xiaohang Zhang (xiaohangzhang@tju.edu.cn)
   
   else if (strcmp(argv[1],"KRAlphaExplicit_TP") == 0) {
     theTransientIntegrator = (TransientIntegrator *)OPS_KRAlphaExplicit_TP();
