@@ -151,6 +151,7 @@
       </DataExecutionPrevention>
       <ImportLibrary>
       </ImportLibrary>
+      <AssemblyDebug>true</AssemblyDebug>
     </Link>
     <Bscmake>
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
