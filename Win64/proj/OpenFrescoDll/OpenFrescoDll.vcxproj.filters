@@ -13,34 +13,34 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\SRC\interpreter\tcl\OpenFrescoPackage.cpp">
+    <ClCompile Include="..\..\..\SRC\interpreteropf\tcl\OpenFrescoPackage.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\SRC\openseesCore\win32Functions.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\SRC\interpreter\ExpControlCommands.cpp">
+    <ClCompile Include="..\..\..\SRC\interpreteropf\ExpControlCommands.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\SRC\interpreter\ExpElementCommands.cpp">
+    <ClCompile Include="..\..\..\SRC\interpreteropf\ExpElementCommands.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\SRC\interpreter\ExpRecorderCommands.cpp">
+    <ClCompile Include="..\..\..\SRC\interpreteropf\ExpRecorderCommands.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\SRC\interpreter\ExpSetupCommands.cpp">
+    <ClCompile Include="..\..\..\SRC\interpreteropf\ExpSetupCommands.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\SRC\interpreter\ExpSignalFilterCommands.cpp">
+    <ClCompile Include="..\..\..\SRC\interpreteropf\ExpSignalFilterCommands.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\SRC\interpreter\ExpSiteCommands.cpp">
+    <ClCompile Include="..\..\..\SRC\interpreteropf\ExpSiteCommands.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\SRC\interpreter\ExpTangentStiffCommands.cpp">
+    <ClCompile Include="..\..\..\SRC\interpreteropf\ExpTangentStiffCommands.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\SRC\interpreter\ExpServerCommands.cpp">
+    <ClCompile Include="..\..\..\SRC\interpreteropf\ExpServerCommands.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
   </ItemGroup>
