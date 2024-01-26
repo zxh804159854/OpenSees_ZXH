@@ -42,7 +42,7 @@
     <ClInclude Include="..\..\..\SRC\experimentalControl\ExperimentalControl.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{D9026BC0-B5BF-3BE9-E9CB-3491638F2C38}</ProjectGuid>
+    <ProjectGuid>{929BA24F-C974-4347-8859-1DB2E0FA8CEC}</ProjectGuid>
     <SccProjectName />
     <SccLocalPath />
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
