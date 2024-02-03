@@ -1,3 +1,6 @@
+# 保留指定目录，为了openfresco，add by zxh
+!/SRC/
+
 # Prerequisites
 *.d
 
