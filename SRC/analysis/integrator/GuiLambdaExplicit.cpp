@@ -174,13 +174,15 @@ int GuiLambdaExplicit::newStep(double _deltaT)
         c1 = 2.0*deltaT*deltaT;
         c2 = lambda*deltaT;
         c3 = 2.0* lambda;
-        this->TransientIntegrator::formTangent(INITIAL_TANGENT);
+        // this->TransientIntegrator::formTangent(INITIAL_TANGENT); bug fix by zxh
+        this->TransientIntegrator::formTangent(CURRENT_TANGENT);
         Matrix A(*tmp);
         
         c1 = 0.0;
         c2 = 0.0;
         c3 = 2.0 * lambda;
-        this->TransientIntegrator::formTangent(INITIAL_TANGENT);
+        // this->TransientIntegrator::formTangent(INITIAL_TANGENT); bug fix by zxh
+        this->TransientIntegrator::formTangent(CURRENT_TANGENT);
         Matrix B1(*tmp);
         
         // solve [2*lambda*M + lambda*deltaT*C + 2*deltaT^2*K]*[alpha1] = [2*lambda*M]

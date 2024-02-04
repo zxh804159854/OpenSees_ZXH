@@ -190,13 +190,15 @@ int KRAlphaExplicit::newStep(double _deltaT)
         c1 = beta*deltaT*deltaT;
         c2 = gamma*deltaT;
         c3 = 1.0;
-        this->TransientIntegrator::formTangent(INITIAL_TANGENT);
+        // this->TransientIntegrator::formTangent(INITIAL_TANGENT); bug fix by zxh
+        this->TransientIntegrator::formTangent(CURRENT_TANGENT);
         Matrix A(*tmp);
         
         c1 *= (1.0 - alphaF);
         c2 *= (1.0 - alphaF);
         c3 = (1.0 - alphaM);
-        this->TransientIntegrator::formTangent(INITIAL_TANGENT);
+        // this->TransientIntegrator::formTangent(INITIAL_TANGENT); bug fix by zxh
+        this->TransientIntegrator::formTangent(CURRENT_TANGENT);
         Matrix B3(*tmp);
         
         // solve [M + gamma*deltaT*C + beta*deltaT^2*K]*[alpha3] = 
@@ -206,7 +208,8 @@ int KRAlphaExplicit::newStep(double _deltaT)
         c1 = 0.0;
         c2 = 0.0;
         c3 = 1.0;
-        this->TransientIntegrator::formTangent(INITIAL_TANGENT);
+        // this->TransientIntegrator::formTangent(INITIAL_TANGENT); bug fix by zxh
+        this->TransientIntegrator::formTangent(CURRENT_TANGENT);
         Matrix B1(*tmp);
         
         // solve [M + gamma*deltaT*C + beta*deltaT^2*K]*[alpha1] = [M] for alpha1

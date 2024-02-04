@@ -165,13 +165,15 @@ int CRExplicit::newStep(double _deltaT)
         c1 = deltaT*deltaT;
         c2 = 2.0*deltaT;
         c3 = 4.0;
-        this->TransientIntegrator::formTangent(INITIAL_TANGENT);
+        //this->TransientIntegrator::formTangent(INITIAL_TANGENT); bug fix by zxh
+        this->TransientIntegrator::formTangent(CURRENT_TANGENT);
         Matrix A(*tmp);
         
         c1 = 0.0;
         c2 = 0.0;
         c3 = 4.0;
-        this->TransientIntegrator::formTangent(INITIAL_TANGENT);
+        //this->TransientIntegrator::formTangent(INITIAL_TANGENT); bug fix by zxh
+        this->TransientIntegrator::formTangent(CURRENT_TANGENT);
         Matrix B1(*tmp);
         
         // solve [4M + 2*deltaT*C + deltaT^2*K]*[alpha1] = [4*M]
